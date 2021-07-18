@@ -10,5 +10,9 @@ html(lang="en")
         header
             h1 Noom
         main
+            div#welcome
+                form
+                    input(placeholder="room name", required, type="text")
+                    button Enter Room
         script(src="/socket.io/socket.io.js") 
         script(src="/public/js/app.js") 
