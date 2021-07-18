@@ -14,6 +14,7 @@
     "nodemon": "^2.0.12"
   },
   "dependencies": {
+    "@socket.io/admin-ui": "^0.2.0",
     "express": "^4.17.1",
     "pug": "^3.0.2",
     "socket.io": "^4.1.3",
