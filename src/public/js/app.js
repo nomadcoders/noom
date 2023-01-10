@@ -5,8 +5,10 @@ const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const camerasSelect = document.getElementById("cameras");
 const call = document.getElementById("call");
+const room = document.getElementById("room");
 
 call.hidden = true;
+room.hidden = true;
 
 let myStream;
 let muted = false;
@@ -92,6 +94,22 @@ async function handleCameraChange() {
   }
 }
 
+function handleMessageSubmit(event){
+  event.preventDefault();
+  const input = room.querySelector("#msg input");
+  const value = input.value;
+  socket.emit("new_message", input.value, roomName, () => {
+    addMessage(`You: ${input.value}`);
+  })
+  input.value="";
+}
+
+function handleNicknameSubmit(event){
+  event.preventDefault();
+  const input = room.querySelector("#name input");
+  socket.emit("nickname", input.value);
+}
+
 muteBtn.addEventListener("click", handleMuteClick);
 cameraBtn.addEventListener("click", handleCameraClick);
 camerasSelect.addEventListener("input", handleCameraChange);
@@ -106,6 +124,11 @@ async function initCall() {
   call.hidden = false;
   await getMedia();
   makeConnection();
+  const roomForm = room.querySelector("#init");
+  roomForm.addEventListener("submit", handleMessageSubmit);
+  const nameForm = room.querySelector("#name");
+  nameForm.addEventListener("submit", handleNicknameSubmit);
+
 }
 
 async function handleWelcomeSubmit(event) {
@@ -117,11 +140,19 @@ async function handleWelcomeSubmit(event) {
   input.value = "";
 }
 
+function addMessage(message){
+  const ul = room.querySelector("ul");
+  const li = document.createElement("li");
+  li.innerText = message;
+  ul.appendChild(li);
+}
+
 welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // Socket Code
 
 socket.on("welcome", async () => {
+  addMessage("someone joined!");
   myDataChannel = myPeerConnection.createDataChannel("chat");
   myDataChannel.addEventListener("message", (event) => console.log(event.data));
   console.log("made data channel");
@@ -155,6 +186,10 @@ socket.on("ice", (ice) => {
   console.log("received candidate");
   myPeerConnection.addIceCandidate(ice);
 });
+socket.on("bye", () => {
+  addMessage("someone left");
+})
+socket.on("new_message", addMessage);
 
 // RTC Code
 
