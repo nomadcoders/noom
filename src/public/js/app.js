@@ -1,3 +1,4 @@
+
 const socket = io();
 
 const myFace = document.getElementById("myFace");
@@ -8,7 +9,6 @@ const call = document.getElementById("call");
 const room = document.getElementById("room");
 
 call.hidden = true;
-room.hidden = true;
 
 let myStream;
 let muted = false;
@@ -97,7 +97,6 @@ async function handleCameraChange() {
 function handleMessageSubmit(event){
   event.preventDefault();
   const input = room.querySelector("#msg input");
-  const value = input.value;
   socket.emit("new_message", input.value, roomName, () => {
     addMessage(`You: ${input.value}`);
   })
@@ -119,16 +118,19 @@ camerasSelect.addEventListener("input", handleCameraChange);
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 
+window.onload = function(){
+const roomForm = room.querySelector("#init");
+const nameForm = room.querySelector("#name");
+
+
+roomForm.addEventListener("submit", handleMessageSubmit);
+nameForm.addEventListener("submit", handleNicknameSubmit);
+};
 async function initCall() {
   welcome.hidden = true;
   call.hidden = false;
   await getMedia();
   makeConnection();
-  const roomForm = room.querySelector("#init");
-  roomForm.addEventListener("submit", handleMessageSubmit);
-  const nameForm = room.querySelector("#name");
-  nameForm.addEventListener("submit", handleNicknameSubmit);
-
 }
 
 async function handleWelcomeSubmit(event) {
